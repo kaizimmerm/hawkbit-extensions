@@ -32,6 +32,7 @@
 
    <modules>
       <module>hawkbit-extension-artifact-repository-azure</module>
+      <module>hawkbit-extension-azure-iot-hub</module>
    </modules>
 
    <dependencyManagement>
@@ -42,6 +43,16 @@
             <version>${azure.version}</version>
             <type>pom</type>
             <scope>import</scope>
+         </dependency>
+         <dependency>
+            <groupId>com.microsoft.azure.sdk.iot</groupId>
+            <artifactId>iot-service-client</artifactId>
+            <version>1.15.0</version>
+         </dependency>
+         <dependency>
+            <groupId>org.eclipse.hawkbit</groupId>
+            <artifactId>hawkbit-repository-api</artifactId>
+            <version>${hawkbit.version}</version>
          </dependency>
       </dependencies>
    </dependencyManagement>
