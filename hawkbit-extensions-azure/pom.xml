@@ -27,7 +27,8 @@
    <description>Parent pom for hawkBit extensions around Microsoft Azure integration</description>
 
    <properties>
-      <azure.version>2.0.5</azure.version>
+      <azure-spring-boot.version>2.0.5</azure-spring-boot.version>
+      <iot-service-client.version>1.15.1</iot-service-client.version>
    </properties>
 
    <modules>
@@ -40,14 +41,14 @@
          <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>azure-spring-boot-bom</artifactId>
-            <version>${azure.version}</version>
+            <version>${azure-spring-boot.version}</version>
             <type>pom</type>
             <scope>import</scope>
          </dependency>
          <dependency>
             <groupId>com.microsoft.azure.sdk.iot</groupId>
             <artifactId>iot-service-client</artifactId>
-            <version>1.15.0</version>
+            <version>${iot-service-client.version}</version>
          </dependency>
          <dependency>
             <groupId>org.eclipse.hawkbit</groupId>

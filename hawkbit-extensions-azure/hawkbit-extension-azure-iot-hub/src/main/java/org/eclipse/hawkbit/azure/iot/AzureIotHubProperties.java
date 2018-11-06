@@ -8,10 +8,13 @@
  */
 package org.eclipse.hawkbit.azure.iot;
 
+import javax.validation.constraints.NotEmpty;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("hawkbit.azure.iot")
 public class AzureIotHubProperties {
+    @NotEmpty
     private String iotHubConnectionString;
 
     public String getIotHubConnectionString() {

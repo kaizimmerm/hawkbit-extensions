@@ -6,9 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.azure.iot;
+package org.eclipse.hawkbit.azure.iot.registry;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.eclipse.hawkbit.repository.event.remote.TargetDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
@@ -26,24 +27,25 @@ import com.microsoft.azure.sdk.iot.service.RegistryManager;
 import com.microsoft.azure.sdk.iot.service.auth.SymmetricKey;
 import com.microsoft.azure.sdk.iot.service.exceptions.IotHubException;
 
-public class AzureIotRegistrySynchronizer {
-    private static final Logger LOG = LoggerFactory.getLogger(AzureIotRegistrySynchronizer.class);
+public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
+    private static final Logger LOG = LoggerFactory.getLogger(AzureIotHawkBitToIoTHubRegistrySynchronizer.class);
 
     private final ServiceMatcher serviceMatcher;
     private final RegistryManager registryManager;
 
-    AzureIotRegistrySynchronizer(final ServiceMatcher serviceMatcher, final RegistryManager registryManager) {
+    public AzureIotHawkBitToIoTHubRegistrySynchronizer(final ServiceMatcher serviceMatcher,
+            final RegistryManager registryManager) {
         this.serviceMatcher = serviceMatcher;
         this.registryManager = registryManager;
     }
 
     @EventListener(classes = TargetCreatedEvent.class)
     protected void targetCreatedEvent(final TargetCreatedEvent createdEvent) {
-        if (isNotFromSelf(createdEvent)) {
+        final Target target = createdEvent.getEntity();
+        if (isNotFromSelf(createdEvent) && isNotAzureIoTUri(target.getAddress())) {
             return;
         }
 
-        final Target target = createdEvent.getEntity();
         final SymmetricKey key = new SymmetricKey();
         key.setPrimaryKey(target.getSecurityToken());
 
@@ -71,4 +73,7 @@ public class AzureIotRegistrySynchronizer {
         return serviceMatcher != null && !serviceMatcher.isFromSelf(event);
     }
 
+    public static boolean isNotAzureIoTUri(final URI uri) {
+        return uri != null && !AzureIotIoTHubRegistryToHawkbitSynchronizer.AZURE_IOT_SCHEME.equals(uri.getScheme());
+    }
 }
