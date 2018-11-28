@@ -8,21 +8,92 @@
  */
 package org.eclipse.hawkbit.azure.iot;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("hawkbit.azure.iot")
 public class AzureIotHubProperties {
+    // TODO Consider migrating this to TenantConfiguration
     @NotEmpty
-    private String iotHubConnectionString;
+    private Map<String, IoTHubConfig> iotHubs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public String getIotHubConnectionString() {
-        return iotHubConnectionString;
+    public Map<String, IoTHubConfig> getIotHubs() {
+        return iotHubs;
     }
 
-    public void setIotHubConnectionString(final String iotHubConnectionString) {
-        this.iotHubConnectionString = iotHubConnectionString;
+    public void setIotHubs(final Map<String, IoTHubConfig> iotHubs) {
+        this.iotHubs = iotHubs;
+    }
+
+    public Optional<IoTHubConfig> getIoTHubConfigByTenant(final String tenant) {
+        return Optional.ofNullable(iotHubs.get(tenant));
+    }
+
+    public Optional<String> getTenantByHubName(final String hubName) {
+        return iotHubs.entrySet().stream().filter(entry -> entry.getValue().getHubName().equalsIgnoreCase(hubName))
+                .findAny().map(e -> e.getKey().toUpperCase());
+    }
+
+    public static class IoTHubConfig {
+        @NotEmpty
+        private String hubName;
+
+        @NotEmpty
+        private String connectionString;
+
+        private RegistrySync registrySync = new RegistrySync();
+
+        public String getHubName() {
+            return hubName;
+        }
+
+        public void setHubName(final String hubName) {
+            this.hubName = hubName;
+        }
+
+        public String getConnectionString() {
+            return connectionString;
+        }
+
+        public void setConnectionString(final String connectionString) {
+            this.connectionString = connectionString;
+        }
+
+        public RegistrySync getRegistrySync() {
+            return registrySync;
+        }
+
+        public void setRegistrySync(final RegistrySync registrySync) {
+            this.registrySync = registrySync;
+        }
+
+        public static class RegistrySync {
+            private boolean hubToHawkBitEnabled = true;
+            private boolean hawkBitToHubEnabled = true;
+
+            public boolean isHubToHawkBitEnabled() {
+                return hubToHawkBitEnabled;
+            }
+
+            public void setHubToHawkBitEnabled(final boolean hubToHawkBitEnabled) {
+                this.hubToHawkBitEnabled = hubToHawkBitEnabled;
+            }
+
+            public boolean isHawkBitToHubEnabled() {
+                return hawkBitToHubEnabled;
+            }
+
+            public void setHawkBitToHubEnabled(final boolean hawkBitToHubEnabled) {
+                this.hawkBitToHubEnabled = hawkBitToHubEnabled;
+            }
+
+        }
+
     }
 
 }

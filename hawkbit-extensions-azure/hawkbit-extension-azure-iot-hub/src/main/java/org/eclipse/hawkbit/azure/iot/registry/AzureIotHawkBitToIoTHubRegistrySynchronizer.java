@@ -10,7 +10,9 @@ package org.eclipse.hawkbit.azure.iot.registry;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 
+import org.eclipse.hawkbit.azure.iot.AzureIotHubProperties;
 import org.eclipse.hawkbit.repository.event.remote.TargetDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
 import org.eclipse.hawkbit.repository.model.Target;
@@ -26,54 +28,101 @@ import com.microsoft.azure.sdk.iot.service.DeviceStatus;
 import com.microsoft.azure.sdk.iot.service.RegistryManager;
 import com.microsoft.azure.sdk.iot.service.auth.SymmetricKey;
 import com.microsoft.azure.sdk.iot.service.exceptions.IotHubException;
+import com.microsoft.azure.sdk.iot.service.exceptions.IotHubNotFoundException;
 
 public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
     private static final Logger LOG = LoggerFactory.getLogger(AzureIotHawkBitToIoTHubRegistrySynchronizer.class);
 
     private final ServiceMatcher serviceMatcher;
-    private final RegistryManager registryManager;
+    private final AzureIotHubProperties properties;
 
     public AzureIotHawkBitToIoTHubRegistrySynchronizer(final ServiceMatcher serviceMatcher,
-            final RegistryManager registryManager) {
+            final AzureIotHubProperties properties) {
         this.serviceMatcher = serviceMatcher;
-        this.registryManager = registryManager;
+        this.properties = properties;
+
     }
 
     @EventListener(classes = TargetCreatedEvent.class)
     protected void targetCreatedEvent(final TargetCreatedEvent createdEvent) {
         final Target target = createdEvent.getEntity();
-        if (isNotFromSelf(createdEvent) && isNotAzureIoTUri(target.getAddress())) {
+        if (isNotFromSelf(createdEvent) || isAzureIoTUri(target.getAddress())) {
             return;
         }
 
-        final SymmetricKey key = new SymmetricKey();
-        key.setPrimaryKey(target.getSecurityToken());
+        properties.getIoTHubConfigByTenant(createdEvent.getTenant()).ifPresent(iothub -> {
 
-        try {
-            registryManager.addDevice(Device.createFromId(target.getControllerId(), DeviceStatus.Enabled, key));
-        } catch (JsonSyntaxException | IllegalArgumentException | IOException | IotHubException e) {
-            LOG.error("Failed to add target {}", target.getControllerId(), e);
-        }
+            if (!iothub.getRegistrySync().isHawkBitToHubEnabled()) {
+                return;
+            }
+
+            try {
+                final RegistryManager registry = RegistryManager
+                        .createFromConnectionString(iothub.getConnectionString());
+                final SymmetricKey key = new SymmetricKey();
+
+                // TODO think about ways to handle dual key, i.e. teach hawkBit
+                // to handle it
+                key.setPrimaryKey(target.getSecurityToken());
+                key.setSecondaryKey(target.getSecurityToken());
+
+                registry.addDevice(Device.createFromId(target.getControllerId(), DeviceStatus.Enabled, key));
+
+            } catch (JsonSyntaxException | IllegalArgumentException | IOException | IotHubException e) {
+                LOG.error("Failed to add target {}", target.getControllerId(), e);
+            }
+        });
+
     }
 
     @EventListener(classes = TargetDeletedEvent.class)
     protected void targetDeletedEvent(final TargetDeletedEvent deletedEvent) {
-        if (isNotFromSelf(deletedEvent)) {
+        if (isNotFromSelf(deletedEvent) || isNotAzureIoTUri(deletedEvent.getTargetAddress())
+                || isWrongTenant(deletedEvent.getTenant(), deletedEvent.getTargetAddress(), properties)) {
             return;
         }
 
-        try {
-            registryManager.removeDevice(deletedEvent.getControllerId());
-        } catch (IOException | IotHubException e) {
-            LOG.error("Failed to remove target {}", deletedEvent.getControllerId(), e);
-        }
+        properties.getIoTHubConfigByTenant(deletedEvent.getTenant()).ifPresent(iothub -> {
+
+            if (!iothub.getRegistrySync().isHawkBitToHubEnabled()) {
+                return;
+            }
+
+            try {
+                RegistryManager.createFromConnectionString(iothub.getConnectionString())
+                        .removeDevice(deletedEvent.getControllerId());
+            } catch (final IotHubNotFoundException nf) {
+                LOG.debug("To be deleted device is already deleted in IoT Hub: {}", deletedEvent.getControllerId());
+            } catch (JsonSyntaxException | IllegalArgumentException | IOException | IotHubException e) {
+                LOG.error("Failed to remove target {}", deletedEvent.getControllerId(), e);
+            }
+        });
     }
 
     private boolean isNotFromSelf(final RemoteApplicationEvent event) {
         return serviceMatcher != null && !serviceMatcher.isFromSelf(event);
     }
 
-    public static boolean isNotAzureIoTUri(final URI uri) {
-        return uri != null && !AzureIotIoTHubRegistryToHawkbitSynchronizer.AZURE_IOT_SCHEME.equals(uri.getScheme());
+    // TODO I guess logging and error handling is in order as this is clearly
+    // wrong
+    private boolean isWrongTenant(final String tenant, final String uri, final AzureIotHubProperties properties) {
+        if (uri == null) {
+            return false;
+        }
+
+        final Optional<Boolean> hubMatches = properties.getIoTHubConfigByTenant(tenant)
+                .map(config -> !config.getHubName().equalsIgnoreCase(URI.create(uri).getHost()));
+
+        return hubMatches.isPresent() && hubMatches.get();
+
+    }
+
+    private static boolean isAzureIoTUri(final URI uri) {
+        return uri != null && AzureIotIoTHubRegistryToHawkbitSynchronizer.AZURE_IOT_SCHEME.equals(uri.getScheme());
+    }
+
+    private static boolean isNotAzureIoTUri(final String uri) {
+        return uri != null
+                && !AzureIotIoTHubRegistryToHawkbitSynchronizer.AZURE_IOT_SCHEME.equals(URI.create(uri).getScheme());
     }
 }

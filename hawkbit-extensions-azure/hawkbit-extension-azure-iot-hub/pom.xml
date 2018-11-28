@@ -9,34 +9,56 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.eclipse.hawkbit</groupId>
-		<artifactId>hawkbit-extensions-azure</artifactId>
-		<version>0.3.0-SNAPSHOT</version>
-	</parent>
-	<artifactId>hawkbit-extension-azure-iot-hub</artifactId>
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>org.eclipse.hawkbit</groupId>
+      <artifactId>hawkbit-extensions-azure</artifactId>
+      <version>0.3.0-SNAPSHOT</version>
+   </parent>
+   <artifactId>hawkbit-extension-azure-iot-hub</artifactId>
 
-	<name>hawkBit :: Extensions :: Azure IoT Hub</name>
+   <name>hawkBit :: Extensions :: Azure IoT Hub</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.microsoft.azure.sdk.iot</groupId>
-			<artifactId>iot-service-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.hawkbit</groupId>
-			<artifactId>hawkbit-repository-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka</artifactId>
-		</dependency>
-	</dependencies>
+   <dependencies>
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-autoconfigure</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>com.microsoft.azure.sdk.iot</groupId>
+         <artifactId>iot-service-client</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.hawkbit</groupId>
+         <artifactId>hawkbit-repository-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework.kafka</groupId>
+         <artifactId>spring-kafka</artifactId>
+      </dependency>
+
+      <!-- TEST -->
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-test</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-logging</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-validation</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.qameta.allure</groupId>
+         <artifactId>allure-junit4</artifactId>
+         <scope>test</scope>
+      </dependency>
+   </dependencies>
 </project>

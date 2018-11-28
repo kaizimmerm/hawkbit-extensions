@@ -28,15 +28,19 @@ public class AttributesUpdateScheduler {
 
     private final LockRegistry lockRegistry;
 
+    private final AttributeUpdater attributeUpdater;
+
     /**
      * Instantiates a new AttributesUpdateScheduler
      * 
      */
     public AttributesUpdateScheduler(final SystemManagement systemManagement,
-            final SystemSecurityContext systemSecurityContext, final LockRegistry lockRegistry) {
+            final SystemSecurityContext systemSecurityContext, final LockRegistry lockRegistry,
+            final AttributeUpdater attributeUpdater) {
         this.systemManagement = systemManagement;
         this.systemSecurityContext = systemSecurityContext;
         this.lockRegistry = lockRegistry;
+        this.attributeUpdater = attributeUpdater;
     }
 
     /**
@@ -57,7 +61,7 @@ public class AttributesUpdateScheduler {
         // execute a query without multitenancy if MultiTenant
         // annotation is used.
         // https://bugs.eclipse.org/bugs/show_bug.cgi?id=355458. So
-        // iterate through all tenants and execute the rollout check for
+        // iterate through all tenants and execute the update for
         // each tenant separately.
         final Lock lock = lockRegistry.obtain("azureIoTAttributeSync");
         if (!lock.tryLock()) {
@@ -65,9 +69,7 @@ public class AttributesUpdateScheduler {
         }
 
         try {
-            // FIXME
-            // systemManagement.forEachTenant(tenant ->
-            // autoAssignChecker.check());
+            systemManagement.forEachTenant(tenant -> attributeUpdater.update());
         } finally {
             lock.unlock();
         }

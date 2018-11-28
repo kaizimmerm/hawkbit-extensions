@@ -8,12 +8,12 @@
  */
 package org.eclipse.hawkbit.azure.iot;
 
-import java.io.IOException;
-
 import org.eclipse.hawkbit.azure.iot.registry.AzureIotHawkBitToIoTHubRegistrySynchronizer;
 import org.eclipse.hawkbit.azure.iot.registry.AzureIotIoTHubRegistryToHawkbitSynchronizer;
 import org.eclipse.hawkbit.repository.ControllerManagement;
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.annotation.Bean;
@@ -24,40 +24,31 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.support.converter.BatchMessagingMessageConverter;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 
-import com.microsoft.azure.sdk.iot.service.RegistryManager;
-import com.microsoft.azure.sdk.iot.service.devicetwin.DeviceTwin;
-
 @Configuration
 @EnableConfigurationProperties(AzureIotHubProperties.class)
 public class AzureIotHubAutoConfiguration {
-    // TODO multi tenancy -> tenant = hub
     // TODO properties sync
+    // TODO status snyc?
     // TODO tags sync
-    // TODO all sub features configurable by properties
     // TODO README configuration
     // TODO Unit tests
-
-    @Bean
-    RegistryManager registryManager(final AzureIotHubProperties properties) throws IOException {
-        return RegistryManager.createFromConnectionString(properties.getIotHubConnectionString());
-    }
-
-    @Bean
-    DeviceTwin deviceTwin(final AzureIotHubProperties properties) throws IOException {
-        return DeviceTwin.createFromConnectionString(properties.getIotHubConnectionString());
-    }
+    // TODO clear concept for sync vs device management including a definition
+    // of scenarios -> DDI/DMF with Azure IoT in parallel and Azure IoT below
+    // hawkBit
 
     @Bean
     AzureIotHawkBitToIoTHubRegistrySynchronizer azureIotHawkBitToIoTHubRegistrySynchronizer(
-            final ServiceMatcher serviceMatcher, final RegistryManager registryManager) {
-        return new AzureIotHawkBitToIoTHubRegistrySynchronizer(serviceMatcher, registryManager);
+            final ServiceMatcher serviceMatcher, final AzureIotHubProperties properties) {
+        return new AzureIotHawkBitToIoTHubRegistrySynchronizer(serviceMatcher, properties);
     }
 
     @Bean
     AzureIotIoTHubRegistryToHawkbitSynchronizer azureIotIoTHubRegistryToHawkbitSynchronizer(
             final ControllerManagement controllerManagement, final TargetManagement targetManagement,
-            final DeviceTwin deviceTwin) {
-        return new AzureIotIoTHubRegistryToHawkbitSynchronizer(controllerManagement, targetManagement, deviceTwin);
+            final AzureIotHubProperties properties, final SystemSecurityContext systemSecurityContext,
+            final EntityFactory entityFactory) {
+        return new AzureIotIoTHubRegistryToHawkbitSynchronizer(controllerManagement, targetManagement, properties,
+                systemSecurityContext, entityFactory);
 
     }
 
