@@ -9,9 +9,9 @@ However, an integrated package of Hub and hawkBit could offer even more value by
 - **Combined device management**, e.g. gateway OS/platform updates by hawkBit Direct Device Integration (DDI) API with its client ecosystem (e.g. [SWupdate](https://github.com/sbabic/swupdate) or [rauc-hawkbit](https://github.com/rauc/rauc-hawkbit)) combined with Azure IoT Hub management of [Azure IoT Edge](https://docs.microsoft.com/en-us/azure/iot-edge/) modules.
 - **Improved user experience** by leveraging hawkBit's [graphical user interface](https://www.eclipse.org/hawkbit/ui/) for update and campaign management on top of Azure IoT Hub's highly scalable device management capabilities.
 - **Reduced operations overhead** with automatic data synchronization (e.g. device identity registry information).
-- **Multi device management orchestration** for campaign management on top of multiple IoT Hubs or hybrid scenarios with custom or 3rd party device managements in the IoT solutions landscape.
+- **Multi device management orchestration** for campaign management on top of multiple IoT Hubs or hybrid scenarios with custom or 3rd party device managements in the IoT solution's landscape.
 
-This is value add for commercial offerings on top of hawkBit (e.g. [Bosch IoT Rollouts](https://www.bosch-iot-suite.com/rollouts) or [Kynetics Update Factory](https://www.kynetics.com/iot-platform-update-factory)) as well as to IoT Hub connected application owners that embed hawkBit into their landscape.
+This is value add both for commercial offerings on top of hawkBit (e.g. [Bosch IoT Rollouts](https://www.bosch-iot-suite.com/rollouts) or [Kynetics Update Factory](https://www.kynetics.com/iot-platform-update-factory)) as well as to IoT Hub connected solutions that embed hawkBit into their landscape.
 
 ### Whats is Eclipse hawkBit
 
@@ -34,11 +34,11 @@ The most simple use case offers the sync of device registry metadata:
 - Sync of IoT Hub [device twin](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-device-twins) properties into hawkBit target attributes.
 - Sync of tags.
 
-Benefit is a reduced maintenance effort for users.
-
 ![Device Registry synchronization](graphics/RegistrySync.png)
 
-### _hawkBit on top of IoT Hub_ - Scalability with a rich user experience
+Benefit is a reduced maintenance effort for users.
+
+### _hawkBit on top of IoT Hub_ - Scalability combined with a rich user experience
 
 IoT Hub offers a wide range of [device management](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-device-management-overview) and bi-directional communication capabilities. However, these capabilities are primarily offered to services/solutions by API in addition to a basic graphical user interface by Azure Portal. [hawkBit's Management UI](https://www.eclipse.org/hawkbit/ui/) offers in addition planning capabilities for rollout/campaign management as well as device software repository management.
 
@@ -62,9 +62,9 @@ Orchestration includes:
 
 ![Orchestrated End-to-End software update](graphics/End2EndUpdate.png)
 
-## Implementation
+## Deliverables
 
-IoT Hub's [service SDK](https://github.com/Azure/azure-iot-sdk-java) offers all capabilities necessary to integrate while hawkBit with its module structure allows a simple extension point. As result the proposal is to create a hawkBit extension that provides (potential hawkBit core contributions to improve integration are listed as well):
+IoT Hub's [service SDK](https://github.com/Azure/azure-iot-sdk-java) offers all capabilities necessary to integrate while hawkBit with its modular structure allows easy extension development. As result the proposal is to create a hawkBit extension as optional module as well as a few generic hawkBit core contributions to improve the integration:
 
 - Multi hub connection to hawkBit instance
   - To be decided IoT Hub per hawkBit tenant or multi hub per tenant.
