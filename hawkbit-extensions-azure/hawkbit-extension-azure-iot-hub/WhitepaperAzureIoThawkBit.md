@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Eclipse hawkBit and Azure IoT Hub deliver a strong feature set for IoT solution developers and device fleet operators. In many IoT scenarios they can be used together, e.g. hawkBit to manage the gateway software stack and IoT Hub for device connectivity.
+Eclipse hawkBit and Azure IoT Hub deliver a strong feature set for IoT solution developers and device fleet operators. In many IoT scenarios they can be used in parallel, e.g. hawkBit to manage the gateway software stack and IoT Hub for device connectivity.
 
 However, an tightly integrated package of IoT Hub and hawkBit could offer even more value by means of:
 
