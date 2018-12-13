@@ -8,23 +8,31 @@
  */
 package org.eclipse.hawkbit.azure.iot;
 
+import org.eclipse.hawkbit.azure.iot.devicetwin.AttributeUpdater;
+import org.eclipse.hawkbit.azure.iot.devicetwin.AttributesUpdateScheduler;
+import org.eclipse.hawkbit.azure.iot.devicetwin.DeviceTwinToTargetAtrriutesSynchronizer;
 import org.eclipse.hawkbit.azure.iot.registry.AzureIotHawkBitToIoTHubRegistrySynchronizer;
 import org.eclipse.hawkbit.azure.iot.registry.AzureIotIoTHubRegistryToHawkbitSynchronizer;
 import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
+import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.support.converter.BatchMessagingMessageConverter;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
+@EnableScheduling
 @EnableConfigurationProperties(AzureIotHubProperties.class)
 public class AzureIotHubAutoConfiguration {
     // TODO properties sync
@@ -38,8 +46,17 @@ public class AzureIotHubAutoConfiguration {
 
     @Bean
     AzureIotHawkBitToIoTHubRegistrySynchronizer azureIotHawkBitToIoTHubRegistrySynchronizer(
-            final ServiceMatcher serviceMatcher, final AzureIotHubProperties properties) {
-        return new AzureIotHawkBitToIoTHubRegistrySynchronizer(serviceMatcher, properties);
+            final ServiceMatcher serviceMatcher, final AzureIotHubProperties properties,
+            final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer,
+            final TargetManagement targetManagement) {
+        return new AzureIotHawkBitToIoTHubRegistrySynchronizer(serviceMatcher, properties,
+                deviceTwinToTargetAtrriutesSynchronizer, targetManagement);
+    }
+
+    @Bean
+    DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer(
+            final ControllerManagement controllerManagement, final TargetManagement targetManagement) {
+        return new DeviceTwinToTargetAtrriutesSynchronizer(controllerManagement, targetManagement);
     }
 
     @Bean
@@ -50,6 +67,20 @@ public class AzureIotHubAutoConfiguration {
         return new AzureIotIoTHubRegistryToHawkbitSynchronizer(controllerManagement, targetManagement, properties,
                 systemSecurityContext, entityFactory);
 
+    }
+
+    @Bean
+    AttributesUpdateScheduler attributesUpdateScheduler(final SystemManagement systemManagement,
+            final SystemSecurityContext systemSecurityContext, final LockRegistry lockRegistry,
+            final AttributeUpdater attributeUpdater) {
+        return new AttributesUpdateScheduler(systemManagement, systemSecurityContext, lockRegistry, attributeUpdater);
+    }
+
+    @Bean
+    AttributeUpdater attributeUpdater(final TargetManagement targetManagement, final AzureIotHubProperties properties,
+            final TenantAware tenantAware,
+            final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer) {
+        return new AttributeUpdater(targetManagement, properties, tenantAware, deviceTwinToTargetAtrriutesSynchronizer);
     }
 
     @Bean

@@ -13,6 +13,9 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.azure.iot.AzureIotHubProperties;
+import org.eclipse.hawkbit.azure.iot.devicetwin.DeviceTwinToTargetAtrriutesSynchronizer;
+import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.repository.event.remote.TargetAttributesRequestedEvent;
 import org.eclipse.hawkbit.repository.event.remote.TargetDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
 import org.eclipse.hawkbit.repository.model.Target;
@@ -21,25 +24,40 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import com.google.gson.JsonSyntaxException;
 import com.microsoft.azure.sdk.iot.service.Device;
 import com.microsoft.azure.sdk.iot.service.DeviceStatus;
 import com.microsoft.azure.sdk.iot.service.RegistryManager;
 import com.microsoft.azure.sdk.iot.service.auth.SymmetricKey;
+import com.microsoft.azure.sdk.iot.service.devicetwin.DeviceTwin;
 import com.microsoft.azure.sdk.iot.service.exceptions.IotHubException;
 import com.microsoft.azure.sdk.iot.service.exceptions.IotHubNotFoundException;
 
 public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
     private static final Logger LOG = LoggerFactory.getLogger(AzureIotHawkBitToIoTHubRegistrySynchronizer.class);
 
+    /**
+     * Maximum for target filter queries with auto assign DS Maximum for targets
+     * that are fetched in one turn
+     */
+    private static final int PAGE_SIZE = 1000;
+
     private final ServiceMatcher serviceMatcher;
     private final AzureIotHubProperties properties;
+    private final TargetManagement targetManagement;
+    private final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer;
 
     public AzureIotHawkBitToIoTHubRegistrySynchronizer(final ServiceMatcher serviceMatcher,
-            final AzureIotHubProperties properties) {
+            final AzureIotHubProperties properties,
+            final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer,
+            final TargetManagement targetManagement) {
         this.serviceMatcher = serviceMatcher;
         this.properties = properties;
+        this.deviceTwinToTargetAtrriutesSynchronizer = deviceTwinToTargetAtrriutesSynchronizer;
+        this.targetManagement = targetManagement;
 
     }
 
@@ -73,6 +91,41 @@ public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
             }
         });
 
+    }
+
+    @EventListener(classes = TargetAttributesRequestedEvent.class)
+    protected void targetAttributesRequestedEvent(final TargetAttributesRequestedEvent attributesRequestedEvent) {
+
+        if (isNotFromSelf(attributesRequestedEvent) || isNotAzureIoTUri(attributesRequestedEvent.getTargetAddress())
+                || isWrongTenant(attributesRequestedEvent.getTenant(), attributesRequestedEvent.getTargetAddress(),
+                        properties)) {
+            return;
+        }
+
+        properties.getIoTHubConfigByTenant(attributesRequestedEvent.getTenant()).ifPresent(iothub -> {
+            if (!iothub.getRegistrySync().isHubToHawkBitEnabled()) {
+                return;
+            }
+
+            DeviceTwin deviceTwin;
+            try {
+                deviceTwin = DeviceTwin.createFromConnectionString(iothub.getConnectionString());
+            } catch (final IOException e) {
+                LOG.error("Failed to retrieve Azure IoT Hub connection for tenant {}",
+                        attributesRequestedEvent.getTenant(), e);
+                return;
+            }
+
+            final PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+
+            final Page<Target> targets = targetManagement.findByControllerAttributesRequested(pageRequest);
+
+            for (final Target target : targets) {
+
+                deviceTwinToTargetAtrriutesSynchronizer.sync(deviceTwin,
+                        target.getControllerId());
+            }
+        });
     }
 
     @EventListener(classes = TargetDeletedEvent.class)
@@ -125,4 +178,5 @@ public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
         return uri != null
                 && !AzureIotIoTHubRegistryToHawkbitSynchronizer.AZURE_IOT_SCHEME.equals(URI.create(uri).getScheme());
     }
+
 }

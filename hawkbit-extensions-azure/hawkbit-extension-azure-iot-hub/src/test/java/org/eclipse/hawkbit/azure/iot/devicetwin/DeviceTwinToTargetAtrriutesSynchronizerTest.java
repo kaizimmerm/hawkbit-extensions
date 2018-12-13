@@ -14,13 +14,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hawkbit.azure.iot.devicetwin.AttributeUpdater.DeviceTwinConverter;
 import org.junit.Test;
 
 import com.microsoft.azure.sdk.iot.deps.twin.TwinCollection;
 import com.microsoft.azure.sdk.iot.service.devicetwin.Pair;
 
-public class AttributeUpdaterTest {
+public class DeviceTwinToTargetAtrriutesSynchronizerTest {
     private static final Set<Pair> TEST_PROPERTIES = new HashSet<Pair>() {
         {
             add(new Pair("Root1", "stringValue"));
@@ -41,9 +40,7 @@ public class AttributeUpdaterTest {
     @Test
     public void test() {
 
-        final DeviceTwinConverter converterUnderTest = new DeviceTwinConverter(TEST_PROPERTIES);
-
-        final Map<String, String> converted = converterUnderTest.getAsAttributes();
+        final Map<String, String> converted = DeviceTwinToTargetAtrriutesSynchronizer.getAsAttributes(TEST_PROPERTIES);
 
         assertThat(converted.get("azureiot#Root1")).isEqualTo("stringValue");
         assertThat(converted.get("azureiot#Root2#Value")).isEqualTo("500.0");
