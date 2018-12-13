@@ -40,7 +40,7 @@ public class DeviceTwinToTargetAtrriutesSynchronizerTest {
     @Test
     public void test() {
 
-        final Map<String, String> converted = DeviceTwinToTargetAtrriutesSynchronizer.getAsAttributes(TEST_PROPERTIES);
+        final Map<String, String> converted = DeviceTwinToTargetAttributesSynchronizer.getAsAttributes(TEST_PROPERTIES);
 
         assertThat(converted.get("azureiot#Root1")).isEqualTo("stringValue");
         assertThat(converted.get("azureiot#Root2#Value")).isEqualTo("500.0");

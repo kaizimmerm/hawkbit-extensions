@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.azure.iot;
 
 import org.eclipse.hawkbit.azure.iot.devicetwin.AttributeUpdater;
 import org.eclipse.hawkbit.azure.iot.devicetwin.AttributesUpdateScheduler;
-import org.eclipse.hawkbit.azure.iot.devicetwin.DeviceTwinToTargetAtrriutesSynchronizer;
+import org.eclipse.hawkbit.azure.iot.devicetwin.DeviceTwinToTargetAttributesSynchronizer;
 import org.eclipse.hawkbit.azure.iot.registry.AzureIotHawkBitToIoTHubRegistrySynchronizer;
 import org.eclipse.hawkbit.azure.iot.registry.AzureIotIoTHubRegistryToHawkbitSynchronizer;
 import org.eclipse.hawkbit.repository.ControllerManagement;
@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.annotation.Bean;
@@ -47,16 +48,16 @@ public class AzureIotHubAutoConfiguration {
     @Bean
     AzureIotHawkBitToIoTHubRegistrySynchronizer azureIotHawkBitToIoTHubRegistrySynchronizer(
             final ServiceMatcher serviceMatcher, final AzureIotHubProperties properties,
-            final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer,
+            final DeviceTwinToTargetAttributesSynchronizer deviceTwinToTargetAtrriutesSynchronizer,
             final TargetManagement targetManagement) {
         return new AzureIotHawkBitToIoTHubRegistrySynchronizer(serviceMatcher, properties,
                 deviceTwinToTargetAtrriutesSynchronizer, targetManagement);
     }
 
     @Bean
-    DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer(
+    DeviceTwinToTargetAttributesSynchronizer deviceTwinToTargetAtrriutesSynchronizer(
             final ControllerManagement controllerManagement, final TargetManagement targetManagement) {
-        return new DeviceTwinToTargetAtrriutesSynchronizer(controllerManagement, targetManagement);
+        return new DeviceTwinToTargetAttributesSynchronizer(controllerManagement, targetManagement);
     }
 
     @Bean
@@ -70,6 +71,7 @@ public class AzureIotHubAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "hawkbit.azure.iot.attributes-sync.scheduler", name = "enabled", matchIfMissing = true)
     AttributesUpdateScheduler attributesUpdateScheduler(final SystemManagement systemManagement,
             final SystemSecurityContext systemSecurityContext, final LockRegistry lockRegistry,
             final AttributeUpdater attributeUpdater) {
@@ -79,7 +81,7 @@ public class AzureIotHubAutoConfiguration {
     @Bean
     AttributeUpdater attributeUpdater(final TargetManagement targetManagement, final AzureIotHubProperties properties,
             final TenantAware tenantAware,
-            final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer) {
+            final DeviceTwinToTargetAttributesSynchronizer deviceTwinToTargetAtrriutesSynchronizer) {
         return new AttributeUpdater(targetManagement, properties, tenantAware, deviceTwinToTargetAtrriutesSynchronizer);
     }
 

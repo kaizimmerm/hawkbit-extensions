@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.azure.iot.AzureIotHubProperties;
-import org.eclipse.hawkbit.azure.iot.devicetwin.DeviceTwinToTargetAtrriutesSynchronizer;
+import org.eclipse.hawkbit.azure.iot.devicetwin.DeviceTwinToTargetAttributesSynchronizer;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.event.remote.TargetAttributesRequestedEvent;
 import org.eclipse.hawkbit.repository.event.remote.TargetDeletedEvent;
@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 import com.google.gson.JsonSyntaxException;
 import com.microsoft.azure.sdk.iot.service.Device;
@@ -48,11 +46,11 @@ public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
     private final ServiceMatcher serviceMatcher;
     private final AzureIotHubProperties properties;
     private final TargetManagement targetManagement;
-    private final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer;
+    private final DeviceTwinToTargetAttributesSynchronizer deviceTwinToTargetAtrriutesSynchronizer;
 
     public AzureIotHawkBitToIoTHubRegistrySynchronizer(final ServiceMatcher serviceMatcher,
             final AzureIotHubProperties properties,
-            final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer,
+            final DeviceTwinToTargetAttributesSynchronizer deviceTwinToTargetAtrriutesSynchronizer,
             final TargetManagement targetManagement) {
         this.serviceMatcher = serviceMatcher;
         this.properties = properties;
@@ -116,15 +114,7 @@ public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
                 return;
             }
 
-            final PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
-
-            final Page<Target> targets = targetManagement.findByControllerAttributesRequested(pageRequest);
-
-            for (final Target target : targets) {
-
-                deviceTwinToTargetAtrriutesSynchronizer.sync(deviceTwin,
-                        target.getControllerId());
-            }
+            deviceTwinToTargetAtrriutesSynchronizer.sync(deviceTwin, attributesRequestedEvent.getControllerId());
         });
     }
 

@@ -30,7 +30,7 @@ public class AttributeUpdater {
     private final TargetManagement targetManagement;
     private final AzureIotHubProperties properties;
     private final TenantAware tenantAware;
-    private final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer;
+    private final DeviceTwinToTargetAttributesSynchronizer deviceTwinToTargetAtrriutesSynchronizer;
 
     /**
      * Maximum for target filter queries with auto assign DS Maximum for targets
@@ -40,7 +40,7 @@ public class AttributeUpdater {
 
     public AttributeUpdater(final TargetManagement targetManagement, final AzureIotHubProperties properties,
             final TenantAware tenantAware,
-            final DeviceTwinToTargetAtrriutesSynchronizer deviceTwinToTargetAtrriutesSynchronizer) {
+            final DeviceTwinToTargetAttributesSynchronizer deviceTwinToTargetAtrriutesSynchronizer) {
         this.targetManagement = targetManagement;
         this.properties = properties;
         this.tenantAware = tenantAware;

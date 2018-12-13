@@ -20,14 +20,14 @@ import com.microsoft.azure.sdk.iot.service.devicetwin.DeviceTwinDevice;
 import com.microsoft.azure.sdk.iot.service.devicetwin.Pair;
 import com.microsoft.azure.sdk.iot.service.exceptions.IotHubException;
 
-public class DeviceTwinToTargetAtrriutesSynchronizer {
+public class DeviceTwinToTargetAttributesSynchronizer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeviceTwinToTargetAtrriutesSynchronizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeviceTwinToTargetAttributesSynchronizer.class);
 
     private final ControllerManagement controllerManagement;
     private final TargetManagement targetManagement;
 
-    public DeviceTwinToTargetAtrriutesSynchronizer(final ControllerManagement controllerManagement,
+    public DeviceTwinToTargetAttributesSynchronizer(final ControllerManagement controllerManagement,
             final TargetManagement targetManagement) {
         this.controllerManagement = controllerManagement;
         this.targetManagement = targetManagement;
