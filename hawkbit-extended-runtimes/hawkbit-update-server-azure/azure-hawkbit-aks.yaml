@@ -1,3 +1,12 @@
+#
+# Copyright (c) 2018 Microsoft and others.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -7,7 +16,7 @@ spec:
   template:
     metadata:
       labels:
-        app: hawkbit-update-server        
+        app: hawkbit-update-server
     spec:
       containers:
         - name: hawkbit-update-server
@@ -36,7 +45,7 @@ spec:
                 secretKeyRef:
                   name: hawkbit-infra-secrets
                   key: db_password
-            - name: AZURE_STORAGE_CONNECTION_STRING
+            - name: ORG_ECLIPSE_HAWKBIT_REPOSITORY_AZURE_CONNECTION_STRING
               valueFrom:
                 secretKeyRef:
                   name: hawkbit-infra-secrets

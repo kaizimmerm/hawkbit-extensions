@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/java/jre-headless:8u192-zulu-alpine
+FROM mcr.microsoft.com/java/jre-headless:8u181-zulu-alpine
 
 MAINTAINER Kai Zimmermann <kai.zimmermann@microsoft.com>
 
@@ -11,7 +11,7 @@ EXPOSE 8080
 VOLUME "$HAWKBIT_HOME/data"
 
 WORKDIR $HAWKBIT_HOME
-ENTRYPOINT ["java","-jar","hawkbit-update-server.jar","-Xms768m -Xmx768m -XX:MaxMetaspaceSize=250m -XX:MetaspaceSize=250m -Xss300K -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+HeapDumpOnOutOfMemoryError"]
+ENTRYPOINT ["java","-jar","hawkbit-update-server.jar","-Xmx768m -Xmx768m -XX:MaxMetaspaceSize=250m -XX:MetaspaceSize=250m -Xss300K -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+HeapDumpOnOutOfMemoryError"]
 
 # Add the service itself
 ADD target/$JAR_FILE hawkbit-update-server.jar
