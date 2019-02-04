@@ -1,11 +1,11 @@
 <!--
 
-   Copyright (c) 2018 Microsoft and others.
+    Copyright (c) 2018 Microsoft and others.
 
-   All rights reserved. This program and the accompanying materials
-   are made available under the terms of the Eclipse Public License v1.0
-   which accompanies this distribution, and is available at
-   http://www.eclipse.org/legal/epl-v10.html
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -29,10 +29,12 @@
    <properties>
       <azure.version>2.1.2</azure.version>
       <applicationinsights.version>2.1.2</applicationinsights.version>
+      <azure-iot.version>1.16.0</azure-iot.version>
    </properties>
 
    <modules>
       <module>hawkbit-extension-artifact-repository-azure</module>
+      <module>hawkbit-extension-azure-iot-hub</module>
    </modules>
 
    <dependencyManagement>
@@ -48,6 +50,16 @@
             <groupId>com.microsoft.azure</groupId>
             <artifactId>applicationinsights-core</artifactId>
             <version>${applicationinsights.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>com.microsoft.azure.sdk.iot</groupId>
+            <artifactId>iot-service-client</artifactId>
+            <version>${azure-iot.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.eclipse.hawkbit</groupId>
+            <artifactId>hawkbit-repository-api</artifactId>
+            <version>${hawkbit.version}</version>
          </dependency>
       </dependencies>
    </dependencyManagement>
