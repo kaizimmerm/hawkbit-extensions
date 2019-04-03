@@ -30,6 +30,7 @@
       <azure.version>2.1.2</azure.version>
       <applicationinsights.version>2.1.2</applicationinsights.version>
       <azure-iot.version>1.16.0</azure-iot.version>
+      <azure.storage.version>8.0.0</azure.storage.version>
    </properties>
 
    <modules>
@@ -61,7 +62,11 @@
             <artifactId>hawkbit-repository-api</artifactId>
             <version>${hawkbit.version}</version>
          </dependency>
+         <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-storage</artifactId>
+            <version>${azure.storage.version}</version>
+         </dependency>
       </dependencies>
    </dependencyManagement>
 </project>
-   
