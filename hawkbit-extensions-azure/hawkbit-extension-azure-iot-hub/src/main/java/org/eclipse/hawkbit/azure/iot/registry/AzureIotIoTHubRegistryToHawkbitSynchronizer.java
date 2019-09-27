@@ -118,7 +118,7 @@ public class AzureIotIoTHubRegistryToHawkbitSynchronizer {
 
         case EVENT_MICROSOFT_DEVICES_DEVICE_CONNECTED:
             // TODO timing issue with created?
-            controllerManagement.findOrRegisterTargetIfItDoesNotexist(event.getData().getDeviceId(),
+            controllerManagement.findOrRegisterTargetIfItDoesNotExist(event.getData().getDeviceId(),
                     IpUtil.createUri(AZURE_IOT_SCHEME, event.getData().getHubName()));
             break;
         case EVENT_MICROSOFT_DEVICES_DEVICE_DELETED:

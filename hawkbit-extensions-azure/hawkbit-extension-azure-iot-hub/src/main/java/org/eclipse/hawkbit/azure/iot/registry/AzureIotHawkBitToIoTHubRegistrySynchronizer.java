@@ -79,8 +79,8 @@ public class AzureIotHawkBitToIoTHubRegistrySynchronizer {
 
                 // TODO think about ways to handle dual key, i.e. teach hawkBit
                 // to handle it
-                key.setPrimaryKey(target.getSecurityToken());
-                key.setSecondaryKey(target.getSecurityToken());
+                key.setPrimaryKeyFinal(target.getSecurityToken());
+                key.setSecondaryKeyFinal(target.getSecurityToken());
 
                 registry.addDevice(Device.createFromId(target.getControllerId(), DeviceStatus.Enabled, key));
 

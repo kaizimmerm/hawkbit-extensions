@@ -19,7 +19,7 @@
    </parent>
    <artifactId>hawkbit-extension-azure-iot-hub</artifactId>
 
-   <name>hawkBit :: Extensions :: Azure IoT Hub</name>
+   <name>hawkBit :: Extensions :: Azure IoT Hub Integration</name>
 
    <dependencies>
       <dependency>
